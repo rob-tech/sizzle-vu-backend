@@ -1,5 +1,4 @@
 const express = require("express");
-const shortId = require("shortid");
 const multer = require("multer");
 // const { parse } = require("url")
 const path = require("path");
@@ -12,34 +11,33 @@ const router = express.Router();
 
 
 getMovies = async () => {
-
   return await getItems("movies.json");
 };
 
+saveMovies = async (movies) => {
+  await saveItems("movies.json", movies);
+};
+
+saveMiscMovies = async (movies) => {
+  await saveItems("filtered.json", movies);
+};
+
 saveMoviesHP = async (movies) => {
-  // var movies = hobbitMovies.concat(hpmovies)
   await saveItems("hpMovies.json", movies);
 };
 
 saveMoviesHobbit = async (movies) => {
-  // var movies = hobbitMovies.concat(hpmovies)
   await saveItems("hobbitMovies.json", movies);
 };
 
 saveMoviesLOR = async (movies) => {
-  // var movies = hobbitMovies.concat(hpmovies)
   await saveItems("lordOftheRings.json", movies);
 };
 
-//   router.get("/", async (req, res) => {
-//     var movies = await getMovies("");
-//     await saveItems("movies.json", movies);
-// });
 
-  router.get('/', async (req, res) => {
+  router.get('/harrypotter', async (req, res) => {
     var response = await fetch('http://www.omdbapi.com/?apikey=448f4427&s=harry%20potter&type=movie')
     var hpMovies = await response.json();
-    // hpmovies = JSON.parse(body)
     delete hpMovies.Search.Response
     delete hpMovies.Search.totalResults
     hpMovies = hpMovies.Search
@@ -69,15 +67,60 @@ saveMoviesLOR = async (movies) => {
     res.send(lor) 
   }); 
 
+  //filteredSearch
+  router.get("/:movieName", async (req, res) => {
+    var misc = []
+    var movieName = req.params.movieName
+    var response = await fetch('http://www.omdbapi.com/?apikey=448f4427&s=' + movieName)
+    var movies = await response.json();
+    delete movies.Search.Response
+    delete movies.Search.totalResults
+    movies = movies.Search
+    movies.forEach(async movies => {
+     misc.push(movies)
+      })
+    await saveMiscMovies(misc);
+    res.send(misc);
+  });
+
+    //getMovieDetails
+    router.get("/details/:imdbID", async (req, res) => {
+      var imdbID = req.params.imdbID
+      var response = await fetch('http://www.omdbapi.com/?apikey=448f4427&i=' + imdbID)
+      var movieDetails = await response.json();
+      res.send(movieDetails);
+    });
+
+//oneJSONFile
+  router.get("/", async (req, res) => {
+    var allMovies = []
+    var hobbitMovies = await getItems("hobbitMovies.json");
+    var hpMovies = await getItems("hpMovies.json");
+    var lorMovies= await getItems("lordOftheRings.json");
+    hobbitMovies.forEach(async movies => {
+      allMovies.push(movies)
+      })
+      hpMovies.forEach(async movies => {
+        allMovies.push(movies)
+        })
+        lorMovies.forEach(async movies => {
+          allMovies.push(movies)
+          })
+
+    await saveMovies(allMovies);
+    res.send(allMovies)
+  });
+
+//addMovie
 router.post("/", async (req, res) => {
   var movies = await getMovies();
   var newMovie = req.body;
-  newMovie.id = shortid.generate();
   movies.push(newMovie);
   await saveMovies(movies);
   res.send(newMovie);
 });
 
+//deleteMovie
 router.delete("/:id", async (req, res) => {
   var movies = await getMovies();
   movies = movies.filter(movie => movie.imdbID != req.params.id)
@@ -85,6 +128,8 @@ router.delete("/:id", async (req, res) => {
   res.send(movies)
 });
 
+
+//add image
 const multerInstance = multer({});
 
 // router.get('/:name/download', (req, res, next)=> {    
@@ -110,7 +155,7 @@ router.post("/:id/upload", multerInstance.single("pic"), async (req, res) => {
   res.send(toUpdate);
 });
 
-
+//update image and/or movie
 router.put("/:id", multerInstance.single("pic"), async (req, res) => {
 
   if (req.file) {

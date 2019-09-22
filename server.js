@@ -13,8 +13,9 @@ const server = express()
 server.use(cors())
 server.use(bodyParser.json())
 
-server.use("/movies", movieRoutes)
-server.use("/reviews", movieRoutes)
+server.use("/movies", movieRoutes, reviewRoutes)
+// server.use("/movies/reviews", reviewRoutes)
+// server.use("/reviews", movieRoutes)
 // server.use("/reviews", reviewRoutes)
 
 
