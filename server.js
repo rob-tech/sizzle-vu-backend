@@ -1,12 +1,13 @@
 const express = require("express")
-const bodyParser = require("body-parser")
+// const cookieParser = require('cookie-parser');
+// var flash = require('connect-flash');
+// var session = require('express-session');
 const cors = require("cors")
 const auth = require("./authenticate/index")
 var userRouter = require("./routes/userRouter")
 const mongoose = require("mongoose")
 const passport = require("passport")
 // var expressLayouts = require('express-ejs-layouts');
- 
 
 require('dotenv').config()
 
@@ -18,9 +19,13 @@ const server = express()
 // server.use(expressLayouts);
 // server.set('view engine', 'ejs');
 server.use(cors())
-server.use(bodyParser.json())
 server.use(express.json());
 server.use(passport.initialize())
+
+// server.use(cookieParser())
+// server.use(session({cookie: {maxAge: 60000}}));
+// server.use(session({secretOrKey: options.secretOrKey}))
+// server.use(flash())
 
 server.use("/users", userRouter)
 server.use("/movies", movieRoutes, reviewRoutes)

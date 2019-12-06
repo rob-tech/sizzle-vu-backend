@@ -23,7 +23,6 @@ module.exports = {
     // local: passport.use(new LocalStrategy(User.authenticate())),
     jwtPassport: 
         passport.use(new JwtStrategy(options, (jwt_payload, done) => {
-
         User.findById(jwt_payload._id, (err, user) => {
             if (err)
                 return done(err, false)

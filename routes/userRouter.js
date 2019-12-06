@@ -2,6 +2,9 @@ const express = require("express");
 const User = require("../schemas/user")
 const auth = require("../authenticate")
 const passport = require("passport")
+// var cookieParser = require('cookie-parser');
+// var session      = require('express-session');
+// var flash        = require('req-flash');
 
 const router = express.Router();
 
@@ -31,7 +34,6 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
     var token = auth.getToken({_id: req.user._id})
-    console.log(token)
     res.statusCode = 200
     res.json({
         status: "Login Ok",
@@ -40,6 +42,7 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
         success: true,
     })
 })
+
 
 router.post("/refresh", auth.verifyUser, (req, res) => {
     var token = auth.getToken({_id: req.user._id})
