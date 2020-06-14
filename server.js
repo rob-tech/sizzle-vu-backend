@@ -35,8 +35,9 @@ server.get("/authenticate", auth.verifyUser, auth.adminOnly, (req, res) => {
 })
 
 mongoose.connect("mongodb://localhost:27017", {
-  useNewUrlParser: true
-}).then(server.listen(3000, () => {
+  // useNewUrlParser: true
+  useUnifiedTopology: true
+}).then(server.listen(8080, () => {
   console.log("Server running on port 3000");
 })).catch(err => console.log(err))
 
